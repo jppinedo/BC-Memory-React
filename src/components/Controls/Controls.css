@@ -1,0 +1,69 @@
+
+.controls {
+  display: flex;
+  justify-content: center;
+}
+
+.controls-container {
+  margin: 1rem;
+  max-width: 40rem;
+}
+
+.game-screen {
+  background-color: #aac8ca;
+  padding: 2rem;
+  color: #163a3d;
+  border-radius: 8px;
+  text-align: center;
+  gap: 2rem;
+}
+
+.game-screen.active {
+  display: block;
+}
+
+.game-screen.blue {
+  background-color: #445972;
+  color: #d6e2f0;
+}
+
+.game-screen .control-label {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.game-screen .control-label:first-child {
+  margin-left: 0;
+}
+.game-screen .control-label:last-child {
+  margin-right: 0;
+}
+
+.game-screen .control-label span {
+  font-weight: bold;
+}
+
+.controls p {
+  font-size: 1.2rem;
+  padding: 1rem 0;
+}
+
+.diff-level {
+  margin: 0;
+  list-style: none;
+}
+
+.diff-level li {
+  font-size: 2rem;
+  padding: 0.5rem;
+  border: 3px solid #163a3d;
+  border-radius: 8px;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+.diff-level li:hover {
+  border: 3px solid #fe7445;
+  background-color: #ffa221;
+  color: #fff;
+}
