@@ -1,46 +1,51 @@
-import { useState, useEffect } from 'react';
-import GameContext from './state/GameContext';
+import React, { useEffect, useState } from 'react';
+import { GameProvider } from './state/GameContext';
+import { useStorage } from './hooks/useStorage';
 import Controls from './components/Controls';
 import CardGrid from './components/CardGrid';
 import WinModal from './components/WinModal';
-import './App.css'
+import './App.css';
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState(1);
-  const [difficulty, setDifficulty] = useState(0);
-  const [moves, setMoves] = useState(0);
-  const [totalMoves, setTotalMoves] = useState(0);
-  const [gameStarted, setGameStarted] = useState(false);
-  const [isWin, setIsWin] = useState(false);
+  const { Store } = useStorage();
 
-  const gameState = {
-    currentScreen,
-    difficulty, 
-    gameStarted,
-    moves,
-    totalMoves,
-    isWin,
-    setCurrentScreen,
-    setDifficulty, 
-    setGameStarted,
-    setMoves,
-    setTotalMoves,
-    setIsWin
-  };
+  const storedAppState = Store.getAppState();
+  const [currentScreen, setCurrentScreen] = useState(storedAppState.currentScreen);
+  const [difficulty, setDifficulty] = useState(storedAppState.difficulty);
+  const [gameStarted, setGameStarted] = useState(storedAppState.gameStarted);
 
   useEffect(() => {
-    console.log('new diff: ', difficulty);
-  }, [difficulty])
+    Store.updateAppState({currentScreen, difficulty, gameStarted});
+  }, [currentScreen, difficulty, gameStarted]);
+
+  const onDifficultyChange = (level) => {
+    setDifficulty(level);
+    setGameStarted(true);
+  }
+
+  const onPlayAgain = () => {
+    setCurrentScreen(2);
+    setGameStarted(false);
+    Store.resetGame();
+  }
 
   return (
-    <GameContext.Provider value={gameState}>
+    <GameProvider>
       <main className="container">
       <h3 className="title">Memory game</h3>
-        <Controls />
-        {gameStarted && <CardGrid difficulty={difficulty} />}
-        {isWin && <WinModal />}
+        <Controls 
+          currentScreen={currentScreen} 
+          setCurrentScreen={setCurrentScreen} 
+          onDifficultyChange={onDifficultyChange}
+        />
+        {gameStarted && (
+          <CardGrid 
+            difficulty={difficulty} 
+          />
+        )}
+        <WinModal onPlayAgain={onPlayAgain} />
       </main>
-    </GameContext.Provider>
+    </GameProvider>
   )
 }
 

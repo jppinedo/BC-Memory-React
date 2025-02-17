@@ -1,8 +1,8 @@
 import React from "react";
-import flipSound from '../../public/sounds/flip.wav';
-import flipBackSound from '../../public/sounds/flip_back.wav';
-import pairSound from '../../public/sounds/pair.wav';
-import winSound from '../../public/sounds/win.wav';
+import flipSound from '../sounds/flip.wav';
+import flipBackSound from '../sounds/flip_back.wav';
+import pairSound from '../sounds/pair.wav';
+import winSound from '../sounds/win.wav';
 
 const audio = {
   flipSound: new Audio(flipSound),

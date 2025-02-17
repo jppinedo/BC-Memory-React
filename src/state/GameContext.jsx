@@ -1,20 +1,21 @@
-import { createContext } from 'react';
-import Moves from '../components/Controls/Moves';
+import React, { createContext, useState, useContext } from 'react';
 
-export const gameState = {
-  currentScreen: 1,
-  difficulty: 1, 
-  gameStarted: false,
-  moves: 0,
-  totalMoves: 0,
-  isWin: false,
-  setCurrentScreen: () => {},
-  setDifficulty: () => {},
-  setGameStarted: () => {},
-  setMoves: () => {},
-  setTotalMoves: () => {},
-  setIsWin: () => {}
-}
+const GameContext = createContext();
 
-const GameContext = createContext(gameState);
-export default GameContext;
+export const GameProvider = ({ children }) => {
+  const [moves, setMoves] = useState(0);
+  const [totalMoves, setTotalMoves] = useState(0);
+  const [isWin, setIsWin] = useState(false);
+
+  const gameState = {
+    moves, setMoves, totalMoves, setTotalMoves, isWin, setIsWin
+  }
+
+  return (
+    <GameContext.Provider value={gameState}>
+      {children}
+    </GameContext.Provider>
+  );
+};
+
+export const useGameContext = () => useContext(GameContext);

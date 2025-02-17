@@ -1,12 +1,14 @@
-import React, { useContext, useState, useEffect } from "react";
-import GameContext from '../../state/GameContext';
+import React, { useState, useEffect } from "react";
+import { useStorage } from "../../hooks/useStorage";
 import Card from './Card';
 import useGrid from '../../hooks/useGrid';
+import { useGameContext } from '../../state/GameContext';
 import './CardGrid.css';
 
 export const CardGrid = ({ difficulty }) => {
-  // const { setDifficulty } = useContext(GameContext);
+  const { Store } = useStorage();
   const { getRandomPairs, playSound } = useGrid();
+  const { moves, totalMoves, setTotalMoves, setMoves, setIsWin } = useGameContext();
 
   let gridSize = 0;
   switch(difficulty) {
@@ -15,18 +17,22 @@ export const CardGrid = ({ difficulty }) => {
     case 3: gridSize = 30; break;
   }
 
-  const itemIds = getRandomPairs(gridSize);
-  const initialCardList = itemIds.map(id => ({ id, paired: false, flipped: false }));
+  let initialCardState = Store.getCardState();
+  if(initialCardState.empty) {
+    const itemIds = getRandomPairs(gridSize);
+    initialCardState.cardList = itemIds.map(id => ({ id, paired: false, flipped: false }));
+    initialCardState.flippedCards = [];
+    initialCardState.pairedCount = 0;
+  }
 
-  const [ cardList, setCardList ] = useState(initialCardList);
-  const [ flippedCards, setFlippedCards ] = useState([]);
-  const [ pairedCount, setPairedCount ] = useState(0);
+  const [ cardList, setCardList ] = useState(initialCardState.cardList);
+  const [ flippedCards, setFlippedCards ] = useState(initialCardState.flippedCards);
+  const [ pairedCount, setPairedCount ] = useState(initialCardState.pairedCount);
   const [ flipping, setFlipping ] = useState(false);
-  const { moves, totalMoves, setMoves, setTotalMoves, setIsWin } = useContext(GameContext);
 
   const onCardFlip = (index) => {
     if(!cardList[index].flipped && !cardList[index].paired && !flipping) {
-      const newCardList = [...cardList ]
+      const newCardList = [...cardList ];
       newCardList[index].flipped = true;
       setCardList(newCardList);
       setFlippedCards([...flippedCards, index]);
@@ -35,13 +41,16 @@ export const CardGrid = ({ difficulty }) => {
   }
 
   useEffect(() => {
+    Store.updateFlippedCards(flippedCards);
     if(flippedCards.length === 2) {
       const newCardList = [...cardList ];
+      const isPair = newCardList[flippedCards[0]].id === newCardList[flippedCards[1]].id;
       setFlipping(true);
       setMoves(moves + 1);
       setTotalMoves(totalMoves + 1);
+      Store.updateMoves(moves + 1, totalMoves + 1);
       setTimeout(() => {
-        if(newCardList[flippedCards[0]].id === newCardList[flippedCards[1]].id) {
+        if(isPair) {
           newCardList[flippedCards[0]].paired = true;
           newCardList[flippedCards[1]].paired = true;
           setPairedCount(pairedCount + 1);
@@ -54,16 +63,22 @@ export const CardGrid = ({ difficulty }) => {
         setFlippedCards([]);
         setCardList(newCardList);
         setFlipping(false);
-      }, 1000);
+      }, !isPair ? 1000 : 100);
     }
   }, [flippedCards]);
 
   useEffect(() => {
+    Store.updatePairedCount(pairedCount);
     if(pairedCount === gridSize) {
       playSound('winSound');
       setIsWin(true);
+      Store.updateIsWin(true);
     }
   }, [pairedCount]);
+
+  useEffect(() => {
+    Store.updateCardList(cardList);
+  }, [cardList])
 
   return (
     <ul className="card-list" id="card-list">
